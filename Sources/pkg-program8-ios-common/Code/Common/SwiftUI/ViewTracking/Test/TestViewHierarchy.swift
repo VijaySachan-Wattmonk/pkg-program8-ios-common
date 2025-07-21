@@ -7,52 +7,52 @@
 
 // MARK: - Example Views
 import SwiftUI
-public struct TestViewHierarchy: HierarchyAwareView {
-    public let parentHierarchy: HierarchyTrackable? = nil
+public struct TestViewHierarchy: View{
     public init(){}
     public var body: some View {
-//        NavigationView {
+        AppView(viewModel: AppViewModel(caller: Self.self)){
             VStack {
                 NavigationLink("Go to View1") {
-                    View1(parentHierarchy: self)
+                    View1()
                 }
                 NavigationLink("Go to View2") {
-                    View2(parentHierarchy: self)
+                    View2()
                 }
-            }.logHierarchyPath(self)
-//        }
+            }
+        }
         
     }
 }
 
-struct View1: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
-
-    var body: some View {
-        VStack {
-            Text("This is View1")
-            NavigationLink("Go to ChildView") {
-                ChildView(parentHierarchy: self)
+struct View1:View{
+var body: some View {
+        AppView(viewModel: AppViewModel(caller: Self.self)){
+            VStack {
+                Text("This is View1")
+                NavigationLink("Go to ChildView") {
+                    ChildView()
+                }
             }
         }
-        .logHierarchyPath(self)
     }
 }
 
-struct View2: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
+struct View2:View{
 
     var body: some View {
-        Text("This is View2")
-            .logHierarchyPath(self)
+        AppView(viewModel: AppViewModel(caller: Self.self)){
+            Text("This is View2")
+                
+        }
     }
 }
 
-struct ChildView: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
+struct ChildView:View{
 
     var body: some View {
-        Text("This is ChildView")
-            .logHierarchyPath(self)
+        AppView(viewModel: AppViewModel(caller: Self.self)){
+            Text("This is ChildView")
+        }
+            
     }
 }

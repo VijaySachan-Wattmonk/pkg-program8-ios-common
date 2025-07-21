@@ -38,6 +38,7 @@ extension View {
 }
 
 // MARK: - Common View Protocol
+
 public protocol HierarchyAwareView: View, HierarchyTrackable {}
 extension HierarchyAwareView {
     public var name: String { "\(Self.self)" }

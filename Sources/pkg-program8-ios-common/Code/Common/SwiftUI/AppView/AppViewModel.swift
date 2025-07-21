@@ -7,46 +7,45 @@
 
 import Foundation
 import SwiftUI
-public class AppViewModel:ObservableObject{
-    private let TAG:String
+public class AppViewModel:ObservableObject,FWLoggerDelegate{
+    public var tag:String { "AppViewModel > "+tagVM }
+    let tagVM:String
     private init(){
-        TAG="TAG"
+        tagVM="VM tag not set"
     }
-    init(printTag:String){
-        
-        TAG=printTag
-    }
+    
+    public init<T>(caller: T.Type) {
+            self.tagVM = String(describing: caller)
+        }
     /**
      This method invokes just before the view appears
      */
     func onAppear(){
-        mLog("onAppear")
+        mLog(msg:"onAppear")
     }
     /**
      This method invokes after the view disappears.
      */
     func onDisappear(){
-        mLog("onDisappear")
+        mLog(msg:"onDisappear")
     }
     func active(){
-        mLog("active")
+        mLog(msg:"active")
     }
     func background(){
-        mLog("background")
+        mLog(msg:"background")
     }
     func inactive(){
-        mLog("inactive")
+        mLog(msg:"inactive")
     }
     func onChange(scenePhase:ScenePhase){
         switch scenePhase {
         case .active: active();break
         case .background: background();break
         case .inactive: inactive();break
-        @unknown default: mLog("ScenePhase: unexpected state")
+        @unknown default: mLog(msg:"ScenePhase: unexpected state")
         }
     }
     
-    func mLog(_ msg:String){
-        print(TAG+" : "+msg)
-    }
+    
 }

@@ -8,30 +8,33 @@
 import Foundation
 import SwiftUI
 
-public struct AppView<Content: View>:View{
+public struct AppView<Content: View>:HierarchyAwareView{
+    public var name: String { viewModel.tagVM }
+    public let parentHierarchy: HierarchyTrackable?
     @Environment(\.scenePhase) var scenePhase
     @ViewBuilder let contentView: Content
-    private var code:AppViewModel
-    init(code:AppViewModel,@ViewBuilder contentView: () -> Content) {
+    private var viewModel:AppViewModel
+    public init(viewModel:AppViewModel,@ViewBuilder contentView: () -> Content){
         self.contentView=contentView()
-        self.code=code
-}
-//  var code:MyActionSheetSwiftUIViewCode
+        self.viewModel=viewModel
+        self.parentHierarchy=nil
+       }
+
     public var body: some View {
         contentView.onAppear{
-            code.onAppear()
+            viewModel.onAppear()
         }
         .onDisappear{
-            code.onDisappear()
+            viewModel.onDisappear()
         }
         .onChange(of: scenePhase) { (phase) in
-            code.onChange(scenePhase: phase)
-        }
+            viewModel.onChange(scenePhase: phase)
+        }.logHierarchyPath(self)
     }
 }
 struct MyAppView_Previews: PreviewProvider {
     static var previews: some View {
-        AppView(code: AppViewModel(printTag: "AppView")){
+        AppView(viewModel: AppViewModel(caller: Self.self)){
             Text("Hello app view")
         }
     }
