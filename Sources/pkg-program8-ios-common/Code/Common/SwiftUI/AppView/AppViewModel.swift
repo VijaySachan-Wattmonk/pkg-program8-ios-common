@@ -8,15 +8,15 @@
 import Foundation
 import SwiftUI
 public class AppViewModel:ObservableObject,FWLoggerDelegate{
-    public var tag:String { "AppViewModel > "+tagVM }
-    let tagVM:String
-    private init(){
-        tagVM="VM tag not set"
-    }
-    
-    public init<T>(caller: T.Type) {
-            self.tagVM = String(describing: caller)
-        }
+    public var tag: String {"\(AppViewModel.self) > "+tagVM}
+    var tagVM:String="Not set"
+//    private init(){
+//        tagVM="tagVM not set"
+//    }
+//    init<T>(caller:T.Type){
+//        tagVM="\(String(describing: caller))"
+//       
+//    }
     /**
      This method invokes just before the view appears
      */
@@ -46,6 +46,4 @@ public class AppViewModel:ObservableObject,FWLoggerDelegate{
         @unknown default: mLog(msg:"ScenePhase: unexpected state")
         }
     }
-    
-    
 }

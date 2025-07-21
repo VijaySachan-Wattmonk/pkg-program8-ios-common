@@ -20,30 +20,25 @@ extension HierarchyTrackable {
     }
 }
 
-// MARK: - View Modifier
-struct HierarchyLogger: ViewModifier,FWLoggerDelegate {
-    let hierarchy: HierarchyTrackable
-
-    func body(content: Content) -> some View {
-        content.onAppear {
-            mLog(msg:hierarchy.fullPath)
-        }
-    }
-}
-
-extension View {
-    public func logHierarchyPath(_ hierarchy: HierarchyTrackable) -> some View {
-        modifier(HierarchyLogger(hierarchy: hierarchy))
-    }
-}
+//// MARK: - View Modifier
+//struct HierarchyLogger: ViewModifier,FWLoggerDelegate {
+//    let hierarchy: HierarchyTrackable
+//
+//    func body(content: Content) -> some View {
+//        content.onAppear {
+//            mLog(msg:hierarchy.fullPath)
+//        }
+//    }
+//}
+//
+//extension View {
+//    public func logHierarchyPath(_ hierarchy: HierarchyTrackable) -> some View {
+//        modifier(HierarchyLogger(hierarchy: hierarchy))
+//    }
+//}
 
 // MARK: - Common View Protocol
-
 public protocol HierarchyAwareView: View, HierarchyTrackable {}
 extension HierarchyAwareView {
     public var name: String { "\(Self.self)" }
 }
-
-
-
-
