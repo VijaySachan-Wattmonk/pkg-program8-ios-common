@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct AppView<Content: View>:View{
+public struct AppView<Content: View>:View{
     @Environment(\.scenePhase) var scenePhase
     @ViewBuilder let contentView: Content
     private var code:AppViewModel
@@ -17,7 +17,7 @@ struct AppView<Content: View>:View{
         self.code=code
 }
 //  var code:MyActionSheetSwiftUIViewCode
-    var body: some View {
+    public var body: some View {
         contentView.onAppear{
             code.onAppear()
         }

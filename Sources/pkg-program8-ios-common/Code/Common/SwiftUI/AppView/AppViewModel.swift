@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-class AppViewModel:ObservableObject{
+public class AppViewModel:ObservableObject{
     private let TAG:String
     private init(){
         TAG="TAG"

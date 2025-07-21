@@ -9,9 +9,9 @@ import SwiftUI
 
 // MARK: - Protocol
 @MainActor
-protocol HierarchyTrackable {
+public protocol HierarchyTrackable {
     var parentHierarchy: HierarchyTrackable? { get }
-    var name: String { get }
+     var name: String { get }
 }
 
 extension HierarchyTrackable {
@@ -32,67 +32,17 @@ struct HierarchyLogger: ViewModifier,FWLoggerDelegate {
 }
 
 extension View {
-    func logHierarchyPath(_ hierarchy: HierarchyTrackable) -> some View {
+    public func logHierarchyPath(_ hierarchy: HierarchyTrackable) -> some View {
         modifier(HierarchyLogger(hierarchy: hierarchy))
     }
 }
 
 // MARK: - Common View Protocol
-protocol HierarchyAwareView: View, HierarchyTrackable {}
+public protocol HierarchyAwareView: View, HierarchyTrackable {}
 extension HierarchyAwareView {
-    var name: String { "\(Self.self)" }
+    public var name: String { "\(Self.self)" }
 }
 
-// MARK: - Example Views
 
-struct RootView: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable? = nil
-
-    var body: some View {
-//        NavigationView {
-            VStack {
-                NavigationLink("Go to View1") {
-                    View1(parentHierarchy: self)
-                }
-                NavigationLink("Go to View2") {
-                    View2(parentHierarchy: self)
-                }
-            }.logHierarchyPath(self)
-//        }
-        
-    }
-}
-
-struct View1: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
-
-    var body: some View {
-        VStack {
-            Text("This is View1")
-            NavigationLink("Go to ChildView") {
-                ChildView(parentHierarchy: self)
-            }
-        }
-        .logHierarchyPath(self)
-    }
-}
-
-struct View2: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
-
-    var body: some View {
-        Text("This is View2")
-            .logHierarchyPath(self)
-    }
-}
-
-struct ChildView: HierarchyAwareView {
-    let parentHierarchy: HierarchyTrackable?
-
-    var body: some View {
-        Text("This is ChildView")
-            .logHierarchyPath(self)
-    }
-}
 
 

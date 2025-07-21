@@ -1,0 +1,58 @@
+//
+//  TestViewHierarchy.swift
+//  pkg-program8-ios-common
+//
+//  Created by Wattmonk21 on 21/07/25.
+//
+
+// MARK: - Example Views
+import SwiftUI
+public struct TestViewHierarchy: HierarchyAwareView {
+    public let parentHierarchy: HierarchyTrackable? = nil
+    public init(){}
+    public var body: some View {
+//        NavigationView {
+            VStack {
+                NavigationLink("Go to View1") {
+                    View1(parentHierarchy: self)
+                }
+                NavigationLink("Go to View2") {
+                    View2(parentHierarchy: self)
+                }
+            }.logHierarchyPath(self)
+//        }
+        
+    }
+}
+
+struct View1: HierarchyAwareView {
+    let parentHierarchy: HierarchyTrackable?
+
+    var body: some View {
+        VStack {
+            Text("This is View1")
+            NavigationLink("Go to ChildView") {
+                ChildView(parentHierarchy: self)
+            }
+        }
+        .logHierarchyPath(self)
+    }
+}
+
+struct View2: HierarchyAwareView {
+    let parentHierarchy: HierarchyTrackable?
+
+    var body: some View {
+        Text("This is View2")
+            .logHierarchyPath(self)
+    }
+}
+
+struct ChildView: HierarchyAwareView {
+    let parentHierarchy: HierarchyTrackable?
+
+    var body: some View {
+        Text("This is ChildView")
+            .logHierarchyPath(self)
+    }
+}
