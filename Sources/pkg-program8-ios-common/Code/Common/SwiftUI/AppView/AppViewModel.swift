@@ -7,43 +7,72 @@
 
 import Foundation
 import SwiftUI
-public class AppViewModel:ObservableObject,FWLoggerDelegate{
-    public var tag: String {"\(AppViewModel.self) > "+tagVM}
-    var tagVM:String="Not set"
-//    private init(){
-//        tagVM="tagVM not set"
-//    }
-//    init<T>(caller:T.Type){
-//        tagVM="\(String(describing: caller))"
-//       
-//    }
-    /**
-     This method invokes just before the view appears
-     */
-    func onAppear(){
-        mLog(msg:"onAppear")
+
+public class AppViewModel: ObservableObject, FWLoggerDelegate {
+    private var isWorking = false
+    public var tag: String { "\(AppViewModel.self) > " + tagVM }
+    var tagVM: String = "Not set"
+
+    deinit { onDeinit() }
+
+    func onAppear() {
+        performLifecycleEvent("onAppear") { self.startWork() }
     }
-    /**
-     This method invokes after the view disappears.
-     */
-    func onDisappear(){
-        mLog(msg:"onDisappear")
+
+    func onDisappear() {
+        performLifecycleEvent("onDisappear") { self.endWork() }
     }
-    func active(){
-        mLog(msg:"active")
+
+    func active() {
+        performLifecycleEvent("active") { self.startWork() }
     }
-    func background(){
-        mLog(msg:"background")
+
+    func background() {
+        performLifecycleEvent("background") { self.endWork() }
     }
-    func inactive(){
-        mLog(msg:"inactive")
+
+    func inactive() {
+        performLifecycleEvent("inactive")
     }
-    func onChange(scenePhase:ScenePhase){
+
+    func onDeinit() {
+        performLifecycleEvent("onDeinit") {}
+    }
+
+    func onChange(scenePhase: ScenePhase) {
         switch scenePhase {
-        case .active: active();break
-        case .background: background();break
-        case .inactive: inactive();break
-        @unknown default: mLog(msg:"ScenePhase: unexpected state")
+            case .active: active()
+            case .background: background()
+            case .inactive: inactive()
+            @unknown default: mLog(msg: "ScenePhase: unexpected state")
         }
+    }
+
+    private func startWork() {
+        guard !isWorking else { return }
+        isWorking = true; mLog(msg: "startWork"); onStartWork()
+    }
+
+    private func endWork() {
+        guard isWorking else { return }
+        isWorking = false; mLog(msg: "endWork"); onEndWork()
+    }
+
+    func onStartWork() {
+        // Override in subclass for custom start logic
+    }
+
+    func onEndWork() {
+        // Override in subclass for custom end logic
+    }
+
+    func performLifecycleEvent(_ eventName: String, action: (() -> Void)? = nil) {
+        mLog(msg: eventName)
+        action?()
+    }
+    private func todo() {
+        let _="""
+            1. Add method onDismiss which will be invoked, When View is dismissed manually or sliding right
+            """
     }
 }

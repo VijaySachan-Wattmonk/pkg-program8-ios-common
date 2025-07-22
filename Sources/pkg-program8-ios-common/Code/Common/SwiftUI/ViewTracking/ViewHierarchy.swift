@@ -20,6 +20,14 @@ extension HierarchyTrackable {
     }
 }
 
+
+// MARK: - Common View Protocol
+public protocol HierarchyAwareView: View, HierarchyTrackable {}
+extension HierarchyAwareView {
+    public var name: String { "\(Self.self)" }
+}
+
+
 //// MARK: - View Modifier
 //struct HierarchyLogger: ViewModifier,FWLoggerDelegate {
 //    let hierarchy: HierarchyTrackable
@@ -36,9 +44,3 @@ extension HierarchyTrackable {
 //        modifier(HierarchyLogger(hierarchy: hierarchy))
 //    }
 //}
-
-// MARK: - Common View Protocol
-public protocol HierarchyAwareView: View, HierarchyTrackable {}
-extension HierarchyAwareView {
-    public var name: String { "\(Self.self)" }
-}

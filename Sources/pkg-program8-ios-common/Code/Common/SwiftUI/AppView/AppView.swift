@@ -8,25 +8,37 @@
 import Foundation
 import SwiftUI
 
+/// A SwiftUI container that manages lifecycle events, logs view hierarchy,
+/// and integrates with `AppViewModel` for consistent view behavior and tracking.
 public struct AppView<Content: View>:View,FWLoggerDelegate{
     @Environment(\.scenePhase) var scenePhase
+
     @ViewBuilder let contentView: Content
+
     private var hierarchy: HierarchyTrackable?
+
     @ObservedObject private var viewModel: AppViewModel
+
     nonisolated public var tagOfThisView:String="tagOfThisView"
+
     nonisolated public var tag: String {
             return tagOfThisView
     }
-    init(_ hierarchy: HierarchyTrackable?,viewModel: AppViewModel,@ViewBuilder contentView: () -> Content) {
+
+    /// Sets up the content view and assigns the associated view model and hierarchy.
+    /// Also computes the tag for tracking/logging the view’s identity.
+    init(_ hierarchy: HierarchyTrackable?=nil,viewModel: AppViewModel,@ViewBuilder contentView: () -> Content) {
         self.contentView=contentView()
         self.viewModel=viewModel
         self.hierarchy=hierarchy
         viewModel.tagVM=getTag()
         tagOfThisView=getTag()
     }
-      private func getTag() -> String {
+
+    private func getTag() -> String {
         return hierarchy?.name ?? N_A
     }
+
     public var body: some View {
         contentView.onAppear{
             viewModel.onAppear()
@@ -40,6 +52,7 @@ public struct AppView<Content: View>:View,FWLoggerDelegate{
             viewModel.onChange(scenePhase: phase)
         }
     }
+
     private func logHierarchy() {
         mLog(msg: (hierarchy?.fullPath ?? N_A))
     }
