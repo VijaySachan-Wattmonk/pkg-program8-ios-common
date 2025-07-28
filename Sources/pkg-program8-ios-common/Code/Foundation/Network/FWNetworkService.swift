@@ -19,41 +19,43 @@ public final class FWNetworkService:FWLoggerDelegate{
         self.commonHeaders=headers
     }
     
-    public func requestPOST<T: Decodable>(
-        url: String,
-        body: Encodable,
-        additionalHeaders: [String: String]? = nil,
-        responseType: T.Type
-    ) async -> Result<T, Error> {
-        guard let requestURL = URL(string: url) else {
-            return .failure(URLError(.badURL))
-        }
-        let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
-
-        do {
-            let encodedBody = try JSONEncoder().encode(AnyEncodable(body))
-            return await provider.requestResult(
-                url: requestURL,
-                method: .post,
-                headers: mergedHeaders,
-                body: encodedBody,
-                responseType: responseType
-            )
-        } catch {
-            return .failure(error)
-        }
-    }
+//    public func requestPOST<T: Decodable>(
+//        url: String,
+//        body: Encodable,
+//        additionalHeaders: [String: String]? = nil,
+//        responseType: T.Type
+//    ) async -> Result<T, NetworkErrorLog> {
+//        guard let requestURL = URL(string: url) else {
+//            return .failure(URLError(.badURL))
+//        }
+//        let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
+//
+//        do {
+//            let encodedBody = try JSONEncoder().encode(AnyEncodable(body))
+//            return await provider.requestResult(
+//                url: requestURL,
+//                method: .post,
+//                headers: mergedHeaders,
+//                body: encodedBody,
+//                responseType: responseType
+//            )
+//        } catch {
+//            return .failure(error)
+//        }
+//    }
     
     public func requestGET<T: Decodable>(
         url: String,
         params: [String: Encodable] = [:],
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
-    ) async -> Result<T, Error> {
-        guard let requestURL = URL(string: url) else {
-            return .failure(URLError(.badURL))
-        }
+    ) async -> Result<T, NetworkErrorLog> {
         let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
+        guard let requestURL = URL(string: url) else {
+            return .failure(NetworkErrorLog(url: url, method: .get, headers: mergedHeaders, body: nil, responseData: nil, statusCode: nil, errorDescription: "Invalid URL")
+            )
+        }
+        
         var finalURL = requestURL
         if !params.isEmpty {
             var components = URLComponents(url: requestURL, resolvingAgainstBaseURL: false)
