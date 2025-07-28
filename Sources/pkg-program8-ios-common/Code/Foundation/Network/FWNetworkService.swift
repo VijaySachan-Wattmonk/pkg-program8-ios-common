@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public final class NetworkService:FWLoggerDelegate{
+public final class FWNetworkService:FWLoggerDelegate{
     private let provider: NetworkProvider
     public private(set) var commonHeaders: [String: String] = [
         "Content-Type": "application/json",
@@ -24,19 +24,24 @@ public final class NetworkService:FWLoggerDelegate{
         body: Encodable,
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
-    ) async throws -> T {
+    ) async -> Result<T, Error> {
         guard let requestURL = URL(string: url) else {
-            throw URLError(.badURL)
+            return .failure(URLError(.badURL))
         }
         let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
-        let encodedBody = try JSONEncoder().encode(AnyEncodable(body))
-        return try await provider.request(
-            url: requestURL,
-            method: .post,
-            headers: mergedHeaders,
-            body: encodedBody,
-            responseType: responseType
-        )
+
+        do {
+            let encodedBody = try JSONEncoder().encode(AnyEncodable(body))
+            return await provider.requestResult(
+                url: requestURL,
+                method: .post,
+                headers: mergedHeaders,
+                body: encodedBody,
+                responseType: responseType
+            )
+        } catch {
+            return .failure(error)
+        }
     }
     
     public func requestGET<T: Decodable>(
@@ -44,9 +49,9 @@ public final class NetworkService:FWLoggerDelegate{
         params: [String: Encodable] = [:],
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
-    ) async throws -> T {
+    ) async -> Result<T, Error> {
         guard let requestURL = URL(string: url) else {
-            throw URLError(.badURL)
+            return .failure(URLError(.badURL))
         }
         let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
         var finalURL = requestURL
@@ -58,7 +63,7 @@ public final class NetworkService:FWLoggerDelegate{
             }
         }
 
-        return try await provider.request(
+        return await provider.requestResult(
             url: finalURL,
             method: .get,
             headers: mergedHeaders,
@@ -69,8 +74,6 @@ public final class NetworkService:FWLoggerDelegate{
     
     
 }
-
-
 struct AnyEncodable: Encodable {
     let value: Encodable
 

@@ -11,22 +11,21 @@ public enum FWHttpMethod: String,Sendable {
     case put = "PUT"
     case delete = "DELETE"
 }
-public protocol NetworkProvider:Sendable{
-    func request<T: Decodable>(
+public protocol NetworkProvider: Sendable {
+
+    func requestResult<T: Decodable>(
         url: URL,
         method: FWHttpMethod,
         headers: [String: String]?,
         body: Data?,
         responseType: T.Type
-    ) async throws -> T
+    ) async -> Result<T, Error>
 }
-extension NetworkProvider{
-    static func defaultConfiguration()-> URLSessionConfiguration {
-        let copy=URLSessionConfiguration.default
-//        copy.timeoutIntervalForRequest = 30
-//        copy.timeoutIntervalForResource = 60
+extension NetworkProvider {
+    static func defaultConfiguration() -> URLSessionConfiguration {
+        let copy = URLSessionConfiguration.default
         return copy
     }
+
+
 }
-
-

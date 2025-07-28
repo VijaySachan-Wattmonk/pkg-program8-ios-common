@@ -6,7 +6,72 @@
 //
 
 import Foundation
-final class URLSessionProvider:NetworkProvider{
+final class URLSessionProvider:NetworkProvider,FWLoggerDelegate{
+    struct NetworkLog: Error,FWLoggerDelegate {
+        let url: URL
+        let method: FWHttpMethod
+        let headers: [String: String]?
+        let body: Data?
+        let responseData: Data?
+        let statusCode: Int?
+        let errorDescription: String?
+        
+        init(
+            url: URL,
+            method: FWHttpMethod,
+            headers: [String: String]?,
+            body: Data?,
+            responseData: Data?,
+            statusCode: Int?,
+            errorDescription: String?
+        ) {
+            self.url = url
+            self.method = method
+            self.headers = headers
+            self.body = body
+            self.responseData = responseData
+            self.statusCode = statusCode
+            self.errorDescription = errorDescription
+        }
+        
+        var requestBodyString: String {
+            guard let body = body else { return "nil" }
+            return String(data: body, encoding: .utf8) ?? "Non-UTF8 Data"
+        }
+        
+        var responsePreviewString: String {
+            guard let data = responseData else { return "nil" }
+            return String(data: data.prefix(1000), encoding: .utf8) ?? "Non-UTF8 Data"
+        }
+        
+        var headersString: String {
+            headers?.map { "\($0.key): \($0.value)" }.joined(separator: ", ") ?? "nil"
+        }
+        
+        func log() {
+            let requestID = UUID().uuidString
+            let timestamp = ISO8601DateFormatter().string(from: Date())
+            mLog(msg: "🪪 Request ID: \(requestID)")
+            mLog(msg: "🕒 Timestamp: \(timestamp)")
+            mLog(msg: "🌐 URL: \(url.absoluteString)")
+            mLog(msg: "📤 Method: \(method.rawValue)")
+
+            if let statusCode = statusCode {
+                mLog(msg: "📶 Status Code: \(statusCode)")
+            }
+
+            mLog(msg: "🧾 Headers: \(headersString)")
+            mLog(msg: "📤 Request Body: \(requestBodyString)")
+            mLog(msg: "📥 Response (preview): \(responsePreviewString)")
+
+            if let errorDescription = errorDescription {
+                mLog(msg: "❌ Error: \(errorDescription)")
+            }
+
+            mLog(msg: "✅ Request completed\n------------------------------")
+        }
+    }
+    
     private let session: URLSession!
     init(configuration: URLSessionConfiguration){
         session = URLSession(configuration: configuration)
@@ -15,54 +80,55 @@ final class URLSessionProvider:NetworkProvider{
         session = URLSession(configuration:URLSessionProvider.defaultConfiguration())
     }
     
-func request<T>(url: URL, method: FWHttpMethod, headers: [String : String]?, body: Data?, responseType: T.Type) async throws -> T where T : Decodable {
-    var request = URLRequest(url: url)
-    request.httpMethod = method.rawValue
-    request.httpBody = body
-    headers?.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+    func requestResult<T: Decodable>(
+        url: URL,
+        method: FWHttpMethod,
+        headers: [String: String]?,
+        body: Data?,
+        responseType: T.Type
+    ) async -> Result<T, Error> {
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        request.httpBody = body
+        headers?.forEach { request.setValue($1, forHTTPHeaderField: $0) }
 
-    var responseData: Data? = nil
-    var statusCode: Int? = nil
-    defer {
-        logRequestAndResponse(url: url, method: method, headers: headers, body: body, responseData: responseData, statusCode: statusCode)
-    }
-
-    do {
-        let (data, response) = try await session.data(for: request)
-        responseData = data
-        statusCode = (response as? HTTPURLResponse)?.statusCode
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200..<300).contains(httpResponse.statusCode) else {
-            throw URLError(.badServerResponse)
+        var responseData: Data? = nil
+        var statusCode: Int? = nil
+        var errorDescription: String? = nil
+        defer {
+            let log = NetworkLog(
+                url: url,
+                method: method,
+                headers: headers,
+                body: body,
+                responseData: responseData,
+                statusCode: statusCode,
+                errorDescription: errorDescription
+            )
+            log.log()
         }
-
-        return try JSONDecoder().decode(T.self, from: data)
-    } catch {
-        print("❌ Request failed with error: \(error)")
-        throw error
+        do {
+            let (data, response) = try await session.data(for: request)
+            responseData = data
+            statusCode = (response as? HTTPURLResponse)?.statusCode
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200..<300).contains(httpResponse.statusCode) else {
+                return .failure(URLError(.badServerResponse))
+            }
+            let decoded = try JSONDecoder().decode(T.self, from: data)
+            return .success(decoded)
+        } catch {
+            errorDescription = error.localizedDescription
+            return .failure(NetworkLog(
+                url: url,
+                method: method,
+                headers: headers,
+                body: body,
+                responseData: responseData,
+                statusCode: statusCode,
+                errorDescription: error.localizedDescription
+            ))
+        }
     }
-}
-    
-private func logRequestAndResponse(url: URL, method: FWHttpMethod, headers: [String: String]?, body: Data?, responseData: Data?, statusCode: Int?) {
-    print("🕒 Timestamp: \(Date())")
-    print("🌐 Request URL: \(url.absoluteString)")
-    print("📤 HTTP Method: \(method.rawValue)")
-    if let statusCode = statusCode {
-        print("📶 HTTP Status Code: \(statusCode)")
-    }
-    if let headers = headers {
-        print("📤 Headers: \(headers)")
-    }
-    if let body = body, let bodyString = String(data: body, encoding: .utf8) {
-        print("📤 Body: \(bodyString)")
-    }
-    if let data = responseData, let responseString = String(data: data, encoding: .utf8) {
-        print("📥 Response Data: \(responseString)")
-    }
-}
-    
-    
-    
     
 }
