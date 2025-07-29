@@ -11,7 +11,7 @@ public final class FWNetworkService: BaseNetworkService, FWLoggerDelegate{
     public init(provider: NetworkProvider) {
         self.provider = provider
     }
-    public func request<T: Decodable>(
+    public func requestWithQuery<T: Decodable>(
         method: FWHttpMethod,
         url: String,
         params: [String: Encodable] = [:],
@@ -33,7 +33,7 @@ public final class FWNetworkService: BaseNetworkService, FWLoggerDelegate{
             responseType: responseType
         )
     }
-    public func request<T: Decodable>(
+    public func requestWithJSONBody<T: Decodable>(
         method: FWHttpMethod,
         url: String,
         body: Encodable,
