@@ -20,12 +20,7 @@ public protocol NetworkProvider {
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog>
 }
-extension NetworkProvider {
-    static func defaultConfiguration() -> URLSessionConfiguration {
-        let copy = URLSessionConfiguration.default
-        return copy
-    }
-}
+
 
 public struct NetworkErrorLog: Error,FWLoggerDelegate {
     let url: String

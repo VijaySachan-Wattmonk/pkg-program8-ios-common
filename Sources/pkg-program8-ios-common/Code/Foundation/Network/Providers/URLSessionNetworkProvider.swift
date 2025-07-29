@@ -6,7 +6,7 @@
 //
 
 import Foundation
-final public class URLSessionProvider: BaseNetworkProvider, FWLoggerDelegate {
+final public class URLSessionNetworkProvider: BaseNetworkProvider, FWLoggerDelegate {
     private let session: URLSession
     
     public required init(configuration: URLSessionConfiguration) {
@@ -15,7 +15,7 @@ final public class URLSessionProvider: BaseNetworkProvider, FWLoggerDelegate {
     }
     
     public required init() {
-        self.session = URLSession(configuration: URLSessionProvider.defaultConfiguration())
+        self.session = URLSession(configuration: BaseNetworkProvider.defaultConfiguration())
         super .init()
     }
     public override func performRequest<T: Decodable>(

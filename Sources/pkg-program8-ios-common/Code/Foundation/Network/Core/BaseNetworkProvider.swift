@@ -21,4 +21,8 @@ open class BaseNetworkProvider:NetworkProvider {
     public required init() {
         
     }
+    static func defaultConfiguration() -> URLSessionConfiguration {
+        let copy = URLSessionConfiguration.default
+        return copy
+    }
 }
