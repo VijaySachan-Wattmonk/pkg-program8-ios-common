@@ -6,9 +6,6 @@
 //
 
 import Foundation
-
-
-
 public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
     private let provider: NetworkProvider
     public init(provider: NetworkProvider) {
@@ -21,6 +18,10 @@ public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog> {
+        if Global.isExecutingOnMainThread(){
+            fatalError(FWNetworkConstants.pleaseCallFromBackground)
+        }
+        
         let mergedHeaders = finalHeaders(adding: additionalHeaders)
         guard let requestURL = URL(string: url) else {
             return .failure(NetworkErrorLog(url: url, method: method, headers: mergedHeaders, body: nil, responseData: nil, statusCode: nil, errorDescription: FWNetworkConstants.invalidURL))
@@ -42,6 +43,10 @@ public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog> {
+        if Global.isExecutingOnMainThread(){
+            fatalError(FWNetworkConstants.pleaseCallFromBackground)
+        }
+
         let mergedHeaders = finalHeaders(adding: additionalHeaders)
         guard let requestURL = URL(string: url) else {
             return .failure(NetworkErrorLog(
@@ -65,7 +70,7 @@ public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
                 body: nil,
                 responseData: nil,
                 statusCode: nil,
-                errorDescription: FWNetworkConstants.encodingErrorPrefix + error.localizedDescription
+                errorDescription: FWNetworkConstants.encodingError + error.localizedDescription
             ))
         }
         

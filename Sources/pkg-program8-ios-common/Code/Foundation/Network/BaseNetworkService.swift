@@ -10,8 +10,9 @@ import Foundation
     static let contentType = "Content-Type"
     static let accept = "Accept"
     static let applicationJSON = "application/json"
+    static let pleaseCallFromBackground = "Please call this method from background thread."
+    static let encodingError = "Encoding Error: "
     static let invalidURL = "Invalid URL"
-    static let encodingErrorPrefix = "Encoding Error: "
 }
 public class BaseNetworkService {
     public private(set) var commonHeaders: [String: String] = [

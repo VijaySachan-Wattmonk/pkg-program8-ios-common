@@ -18,8 +18,8 @@ extension Global{
         let threadName = Thread.isMainThread ? "Main Thread":"Background Thread"
         print("logThreadType : [\(tag)] : \(function) : thread :\(threadName)")
     }
+    
+    public static func isExecutingOnMainThread() -> Bool {
+        return Thread.isMainThread
+    }
 }
-
-
-
-
