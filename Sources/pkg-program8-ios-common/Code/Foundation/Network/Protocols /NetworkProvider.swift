@@ -11,7 +11,7 @@ public enum FWHttpMethod: String,Sendable {
     case put = "PUT"
     case delete = "DELETE"
 }
-public protocol NetworkProvider: Sendable {
+public protocol NetworkProvider {
     func performRequest<T: Decodable>(
         url: URL,
         method: FWHttpMethod,
@@ -26,6 +26,7 @@ extension NetworkProvider {
         return copy
     }
 }
+
 public struct NetworkErrorLog: Error,FWLoggerDelegate {
     let url: String
     let method: FWHttpMethod
