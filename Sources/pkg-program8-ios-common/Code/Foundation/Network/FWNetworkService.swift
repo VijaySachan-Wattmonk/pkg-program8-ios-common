@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
     private let provider: NetworkProvider
     public init(provider: NetworkProvider) {
@@ -18,6 +19,7 @@ public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog> {
+        Global.logThreadType(tag: tag)
         if Global.isExecutingOnMainThread(){
             fatalError(FWNetworkConstants.pleaseCallFromBackground)
         }
@@ -43,6 +45,7 @@ public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog> {
+        Global.logThreadType(tag: tag)
         if Global.isExecutingOnMainThread(){
             fatalError(FWNetworkConstants.pleaseCallFromBackground)
         }

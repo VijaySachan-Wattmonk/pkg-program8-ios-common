@@ -3,7 +3,7 @@ import SwiftUI
 
 
 @MainActor
-class UserListViewModel: ObservableObject {
+class UserListViewModel: ObservableObject,FWLoggerDelegate {
     @Published var users: [User] = []
     @Published var alertMessage: String?
     @Published var isShowingAlert = false
@@ -11,22 +11,21 @@ class UserListViewModel: ObservableObject {
     
 
     func fetchUsers() {
-        
+        Global.logThreadType(tag: tag)
+        let service=networkService
         Task {
-            let result = await networkService.requestWithQuery(
+            let result = await service.requestWithQuery(
                 method: .get,
                 url: "https://jsonplaceholder.typicode.com/users",
                 responseType: [User].self
             )
-
-            await MainActor.run {
-                switch result {
-                case .success(let fetchedUsers):
-                    self.users = fetchedUsers
-                case .failure(let error):
-                    self.alertMessage = error.errorDescription
-                    self.isShowingAlert = true
-                }
+//            Global.logThreadType(tag: tag+"77777777")
+            switch result {
+            case .success(let fetchedUsers):
+                self.users = fetchedUsers
+            case .failure(let error):
+                self.alertMessage = error.errorDescription
+                self.isShowingAlert = true
             }
         }
     }
