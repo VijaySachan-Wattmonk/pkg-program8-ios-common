@@ -7,9 +7,7 @@
 
 import Foundation
 final class URLSessionProvider:NetworkProvider,FWLoggerDelegate{
-    
-    
-    private let session: URLSession!
+private let session: URLSession!
     init(configuration: URLSessionConfiguration){
         session = URLSession(configuration: configuration)
     }
@@ -17,7 +15,7 @@ final class URLSessionProvider:NetworkProvider,FWLoggerDelegate{
         session = URLSession(configuration:URLSessionProvider.defaultConfiguration())
     }
     
-    func requestResult<T: Decodable>(
+    func performRequest<T: Decodable>(
         url: URL,
         method: FWHttpMethod,
         headers: [String: String]?,
@@ -34,7 +32,7 @@ final class URLSessionProvider:NetworkProvider,FWLoggerDelegate{
         var errorDescription: String? = nil
         defer {
             let log = NetworkErrorLog(
-                url: url,
+                url: url.absoluteString,
                 method: method,
                 headers: headers,
                 body: body,
@@ -50,14 +48,14 @@ final class URLSessionProvider:NetworkProvider,FWLoggerDelegate{
             statusCode = (response as? HTTPURLResponse)?.statusCode
             guard let httpResponse = response as? HTTPURLResponse,
                   (200..<300).contains(httpResponse.statusCode) else {
-                 throw FWError(message: "HTTP status code in 200..<300 range")
+                 throw FWError(message: "HTTP status code not in 200..<300 range")
             }
             let decoded = try JSONDecoder().decode(T.self, from: data)
             return .success(decoded)
         } catch {
             errorDescription = error.localizedDescription
             return .failure(NetworkErrorLog(
-                url: url,
+                url: url.absoluteString,
                 method: method,
                 headers: headers,
                 body: body,

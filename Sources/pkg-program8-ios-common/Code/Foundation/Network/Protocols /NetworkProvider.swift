@@ -12,7 +12,7 @@ public enum FWHttpMethod: String,Sendable {
     case delete = "DELETE"
 }
 public protocol NetworkProvider: Sendable {
-    func requestResult<T: Decodable>(
+    func performRequest<T: Decodable>(
         url: URL,
         method: FWHttpMethod,
         headers: [String: String]?,
@@ -68,9 +68,7 @@ public struct NetworkErrorLog: Error,FWLoggerDelegate {
     }
     
     func log() {
-        let requestID = UUID().uuidString
         let timestamp = ISO8601DateFormatter().string(from: Date())
-        mLog(msg: "🪪 Request ID: \(requestID)")
         mLog(msg: "🕒 Timestamp: \(timestamp)")
         mLog(msg: "🌐 URL: \(url)")
         mLog(msg: "📤 Method: \(method.rawValue)")

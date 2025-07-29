@@ -6,84 +6,73 @@
 //
 
 import Foundation
-public final class FWNetworkService:FWLoggerDelegate{
+public final class FWNetworkService: BaseNetworkService, FWLoggerDelegate{
     private let provider: NetworkProvider
-    public private(set) var commonHeaders: [String: String] = [
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    ]
     public init(provider: NetworkProvider) {
         self.provider = provider
     }
-    func setCommonHeaders(_ headers: [String: String]) {
-        self.commonHeaders=headers
-    }
-    
-//    public func requestPOST<T: Decodable>(
-//        url: String,
-//        body: Encodable,
-//        additionalHeaders: [String: String]? = nil,
-//        responseType: T.Type
-//    ) async -> Result<T, NetworkErrorLog> {
-//        guard let requestURL = URL(string: url) else {
-//            return .failure(URLError(.badURL))
-//        }
-//        let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
-//
-//        do {
-//            let encodedBody = try JSONEncoder().encode(AnyEncodable(body))
-//            return await provider.requestResult(
-//                url: requestURL,
-//                method: .post,
-//                headers: mergedHeaders,
-//                body: encodedBody,
-//                responseType: responseType
-//            )
-//        } catch {
-//            return .failure(error)
-//        }
-//    }
-    
-    public func requestGET<T: Decodable>(
+    public func request<T: Decodable>(
+        method: FWHttpMethod,
         url: String,
         params: [String: Encodable] = [:],
         additionalHeaders: [String: String]? = nil,
         responseType: T.Type
     ) async -> Result<T, NetworkErrorLog> {
-        let mergedHeaders = commonHeaders.merging(additionalHeaders ?? [:]) { _, new in new }
+        let mergedHeaders = finalHeaders(adding: additionalHeaders)
         guard let requestURL = URL(string: url) else {
-            return .failure(NetworkErrorLog(url: url, method: .get, headers: mergedHeaders, body: nil, responseData: nil, statusCode: nil, errorDescription: "Invalid URL")
-            )
+            return .failure(NetworkErrorLog(url: url, method: method, headers: mergedHeaders, body: nil, responseData: nil, statusCode: nil, errorDescription: FWNetworkConstants.invalidURL))
         }
         
-        var finalURL = requestURL
-        if !params.isEmpty {
-            var components = URLComponents(url: requestURL, resolvingAgainstBaseURL: false)
-            components?.queryItems = params.map { URLQueryItem(name: $0.key, value: "\($0.value)") }
-            if let urlWithQuery = components?.url {
-                finalURL = urlWithQuery
-            }
-        }
-
-        return await provider.requestResult(
+        let finalURL = appendQueryParameters(to: requestURL, params: params)
+        
+        return await provider.performRequest(
             url: finalURL,
-            method: .get,
+            method: method,
             headers: mergedHeaders,
             body: nil,
             responseType: responseType
         )
     }
-    
-    
-}
-struct AnyEncodable: Encodable {
-    let value: Encodable
-
-    init(_ value: Encodable) {
-        self.value = value
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try value.encode(to: encoder)
+    public func request<T: Decodable>(
+        method: FWHttpMethod,
+        url: String,
+        body: Encodable,
+        additionalHeaders: [String: String]? = nil,
+        responseType: T.Type
+    ) async -> Result<T, NetworkErrorLog> {
+        let mergedHeaders = finalHeaders(adding: additionalHeaders)
+        guard let requestURL = URL(string: url) else {
+            return .failure(NetworkErrorLog(
+                url: url,
+                method: method,
+                headers: mergedHeaders,
+                body: nil,
+                responseData: nil,
+                statusCode: nil,
+                errorDescription: FWNetworkConstants.invalidURL
+            ))
+        }
+        let encodedBody: Data
+        do {
+            encodedBody = try JSONEncoder().encode(AnyEncodable(body))
+        } catch {
+            return .failure(NetworkErrorLog(
+                url: requestURL.absoluteString,
+                method: method,
+                headers: mergedHeaders,
+                body: nil,
+                responseData: nil,
+                statusCode: nil,
+                errorDescription: FWNetworkConstants.encodingErrorPrefix + error.localizedDescription
+            ))
+        }
+        
+        return await provider.performRequest(
+            url: requestURL,
+            method: method,
+            headers: mergedHeaders,
+            body: encodedBody,
+            responseType: responseType
+        )
     }
 }
