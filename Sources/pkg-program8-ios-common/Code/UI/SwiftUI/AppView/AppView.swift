@@ -12,6 +12,7 @@ import SwiftUI
 /// and integrates with `AppViewModel` for consistent view behavior and tracking.
 public struct AppView<Content: View>:View,FWLoggerDelegate{
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.colorScheme) var colorScheme
 
     @ViewBuilder let contentView: Content
 
@@ -31,7 +32,7 @@ public struct AppView<Content: View>:View,FWLoggerDelegate{
         self.contentView=contentView()
         self.viewModel=viewModel
         self.hierarchy=hierarchy
-        viewModel.tagVM=getTag()
+//        viewModel.tagVM=getTag()
         tagOfThisView=getTag()
     }
 
@@ -50,6 +51,9 @@ public struct AppView<Content: View>:View,FWLoggerDelegate{
         }
         .onChange(of: scenePhase) { (phase) in
             viewModel.onChange(scenePhase: phase)
+        }
+        .onChange(of: colorScheme) { newScheme in
+            viewModel.onColorSchemeChange(newScheme)
         }
     }
 

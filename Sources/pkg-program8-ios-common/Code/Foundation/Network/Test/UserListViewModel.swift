@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-
 @MainActor
 class UserListViewModel: ObservableObject,FWLoggerDelegate {
     @Published var users: [User] = []

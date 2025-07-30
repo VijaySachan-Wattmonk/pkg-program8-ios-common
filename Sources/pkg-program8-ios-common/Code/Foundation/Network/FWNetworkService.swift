@@ -9,7 +9,7 @@ import Foundation
 
 public final class FWNetworkService: BaseNetworkService,FWLoggerDelegate{
     private let provider: NetworkProvider
-    public init(provider: NetworkProvider) {
+    public init(provider: NetworkProvider){
         self.provider = provider
     }
     public func requestWithQuery<T: Decodable>(
