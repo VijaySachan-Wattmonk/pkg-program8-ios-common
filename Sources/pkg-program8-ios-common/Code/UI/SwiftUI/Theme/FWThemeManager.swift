@@ -9,10 +9,10 @@
 import SwiftUI
 import Combine
 @MainActor
-public class FWThemeManager:FWLoggerDelegate {
+public class FWThemeManager: ObservableObject, FWLoggerDelegate {
     static let shared = FWThemeManager()
     
-    public private(set) var colorScheme: ColorScheme!
+    @Published public private(set) var colorScheme: ColorScheme!
     private init() {
         let style = UIScreen.main.traitCollection.userInterfaceStyle
         switch style {
