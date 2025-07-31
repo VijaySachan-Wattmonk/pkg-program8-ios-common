@@ -1,62 +1,62 @@
 import SwiftUI
 
 public struct ViewTestFWThemeManager: View {
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var themeManager: FWThemeManager
 
     public init() {}
 
     public var body: some View {
         VStack {
             Text("Root View (ViewTestFWThemeManager)")
-                .foregroundColor(colorScheme == .dark ? .white : .black)
+                .foregroundColor(themeManager.text)
                 .padding()
             NavigationLink("Go to Theme Demo View 1") {
                 ThemeDemoView1()
             }
         }
-        .background(colorScheme == .light ? Color.red : Color.green)
+        .background(themeManager.background)
     }
 }
 
 struct ThemeDemoView1: View {
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var themeManager: FWThemeManager
 
     var body: some View {
         VStack {
             Text("Theme Demo View 1")
-                .foregroundColor(colorScheme == .dark ? .white : .black)
+                .foregroundColor(themeManager.text)
                 .padding()
             NavigationLink("Go to Theme Demo View 2") {
                 ThemeDemoView2()
             }
         }
-        .background(colorScheme == .light ? Color.red : Color.green)
+        .background(themeManager.background)
     }
 }
 
 struct ThemeDemoView2: View {
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var themeManager: FWThemeManager
 
     var body: some View {
         VStack {
             Text("Theme Demo View 2")
-                .foregroundColor(colorScheme == .dark ? .white : .black)
+                .foregroundColor(themeManager.text)
                 .padding()
             NavigationLink("Go to Theme Demo View 3") {
                 ThemeDemoView3()
             }
         }
-        .background(colorScheme == .light ? Color.red : Color.green)
+        .background(themeManager.background)
     }
 }
 
 struct ThemeDemoView3: View {
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var themeManager: FWThemeManager
 
     var body: some View {
         Text("Theme Demo View 3")
-            .foregroundColor(colorScheme == .dark ? .white : .black)
+            .foregroundColor(themeManager.text)
             .padding()
-            .background(colorScheme == .light ? Color.red : Color.green)
+            .background(themeManager.background)
     }
 }

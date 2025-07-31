@@ -10,10 +10,10 @@ import SwiftUI
 import Combine
 @MainActor
 public class FWThemeManager: ObservableObject, FWLoggerDelegate {
-    static let shared = FWThemeManager()
+//    public static let shared = FWThemeManager()
     
     @Published public private(set) var colorScheme: ColorScheme!
-    private init() {
+    public init() {
         let style = UIScreen.main.traitCollection.userInterfaceStyle
         switch style {
         case .dark:
@@ -41,7 +41,7 @@ public class FWThemeManager: ObservableObject, FWLoggerDelegate {
     
     
     var background: Color {
-        colorScheme == .dark ? .black : .white
+        colorScheme == .dark ? .red : .green
     }
     
     var text: Color {
@@ -51,4 +51,6 @@ public class FWThemeManager: ObservableObject, FWLoggerDelegate {
     var primary: Color {
         colorScheme == .dark ? .blue.opacity(0.7) : .blue
     }
+   
+    
 }
